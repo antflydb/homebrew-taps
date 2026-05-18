@@ -32,10 +32,6 @@ cask "antfly-omni" do
     end
   end
 
-  conflicts_with cask: [
-      "antfly",
-    ]
-
   postflight do
     if OS.mac?
       system_command "/bin/chmod", args: ["-R", "u+rw", "#{staged_path}/lib"]
@@ -53,7 +49,7 @@ cask "antfly-omni" do
     "  export TERMITE_BACKEND_PRIORITY=onnx,xla,go"
     ""
     "For the standard version without ML dependencies, use:"
-    "  brew install --cask antfly"
+    "  brew install antflydb/taps/antfly"
   end
 
   # No zap stanza required

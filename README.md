@@ -1,23 +1,25 @@
-# AntflyDB Homebrew Tap
+# AntflyDB Homebrew Taps
 
-This is the official source for installing Antfly and Antfly CLI with Homebrew.
+This is the official source for installing AntflyDB tools with Homebrew.
 
 ## Installing
 
 ```bash
-# Install the Antfly server
-$ brew install antflydb/antfly/antfly
-
-# Install the Antfly CLI
-$ brew install antflydb/antfly/antflycli
+# Install Antfly
+$ brew install antflydb/taps/antfly
 ```
 
 Alternatively, you can configure the tap and install the packages separately:
 
 ```bash
-$ brew tap antflydb/antfly
+$ brew tap antflydb/taps
 $ brew install antfly
-$ brew install antflycli
+```
+
+Run Antfly as a local service:
+
+```bash
+$ brew services start antfly
 ```
 
 ## Documentation

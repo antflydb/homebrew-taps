@@ -16,21 +16,17 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-13 # amd64
           - macos-latest # arm64
-          # TODO (ajr) Casks don't work on Linux afaict
+          # Antfly release artifacts currently include macOS arm64, not macOS amd64.
+          # TODO (ajr): add Linuxbrew setup and enable ubuntu-latest.
           # - ubuntu-latest # amd64
-        product:
-          - antfly
-          - antflycli
-    name: ${{ matrix.product }} cask tests (${{ matrix.os }})
+    name: antfly formula tests (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Tap antflydb/antfly
-        run: ${{ runner.os == 'Linux' && '/home/linuxbrew/.linuxbrew/bin/brew' || 'brew' }} tap antflydb/antfly .
-      - name: Install ${{ matrix.product }} cask
-        run: ${{ runner.os == 'Linux' && '/home/linuxbrew/.linuxbrew/bin/brew' || 'brew' }} install ${{matrix.product }}
-      # Brew test doesn't work on Casks
-      #- name: Test ${{ matrix.product }} cask
-      #  run: ${{ runner.os == 'Linux' && '/home/linuxbrew/.linuxbrew/bin/brew' || 'brew' }} test ${{ matrix.product }}
+      - name: Tap antflydb/taps
+        run: ${{ runner.os == 'Linux' && '/home/linuxbrew/.linuxbrew/bin/brew' || 'brew' }} tap antflydb/taps .
+      - name: Install antfly formula
+        run: ${{ runner.os == 'Linux' && '/home/linuxbrew/.linuxbrew/bin/brew' || 'brew' }} install antfly
+      - name: Test antfly formula
+        run: ${{ runner.os == 'Linux' && '/home/linuxbrew/.linuxbrew/bin/brew' || 'brew' }} test antfly
