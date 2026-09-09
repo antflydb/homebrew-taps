@@ -5,14 +5,15 @@ class Antfly < Formula
   desc "Native Zig AntflyDB runtime"
   homepage "https://docs.antfly.io"
   version "0.2.1"
+  revision 1
   # Recover from older formulae that inferred version 64 from arm64 archives.
   version_scheme 1
   license "Elastic-2.0"
 
   if OS.mac?
     if Hardware::CPU.arm?
-      url "https://releases.antfly.io/antfly/v0.2.1/antfly_0.2.1_Darwin_arm64.tar.gz"
-      sha256 "d169bd4dfdee1cb007092770e62181061207649463a56a3ef02cbeb431aa1e62"
+      url "https://github.com/antflydb/homebrew-taps/releases/download/antfly-v0.2.1-homebrew.1/antfly_0.2.1_Darwin_arm64_homebrew_1.tar.gz"
+      sha256 "5726eebf7fccd0bdf04da470b431953fab4b748dcd1fe1f7608d14db5d5f3f48"
     else
       odie "antfly supports Apple Silicon macOS only"
     end
@@ -50,6 +51,19 @@ class Antfly < Formula
 
   test do
     system "#{bin}/antfly", "--help"
+    (testpath/"smoke.c").write <<~C
+      #include <antfly.h>
+      int main(void) {
+        if (antfly_abi_version() != 1) return 1;
+        void *db = NULL;
+        if (antfly_lite_create("smoke.aflite", &db) != ANTFLY_OK) return 2;
+        antfly_db_close(db);
+        return 0;
+      }
+    C
+    system ENV.cc, "smoke.c", "-I#{include}", "-L#{lib}", "-lantfly",
+           "-Wl,-rpath,#{lib}", "-o", "smoke"
+    system "./smoke"
   end
 
   def caveats
