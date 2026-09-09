@@ -8,18 +8,18 @@ class Antfly < Formula
 
   if OS.mac?
     if Hardware::CPU.arm?
-      url "https://releases.antfly.io/antfly/v0.2.0/antfly_0.2.0_Darwin_arm64.tar.gz"
-      sha256 "82690d5c7e7cac5f7cd56c46ced8f4dd9acace577fb7982060667bcdb2632db6"
+      url "https://releases.antfly.io/antfly/v0.2.1/antfly_0.2.1_Darwin_arm64.tar.gz"
+      sha256 "d169bd4dfdee1cb007092770e62181061207649463a56a3ef02cbeb431aa1e62"
     else
       odie "antfly supports Apple Silicon macOS only"
     end
   elsif OS.linux?
     if Hardware::CPU.arm?
-      url "https://releases.antfly.io/antfly/v0.2.0/antfly_0.2.0_Linux_arm64.tar.gz"
-      sha256 "a4993e854f4c7676708602b2765113f0caad8b8b1097e6c12fac5f562be16ac6"
+      url "https://releases.antfly.io/antfly/v0.2.1/antfly_0.2.1_Linux_arm64_gnu.tar.gz"
+      sha256 "b66c9684e2998d5c4fea79b15dc80ec317fbeeaf9188e5d64f463895a2924884"
     else
-      url "https://releases.antfly.io/antfly/v0.2.0/antfly_0.2.0_Linux_x86_64.tar.gz"
-      sha256 "1eb63abba8d0608355a075e3a39586ee72d9c8a4870ba2365558cea2b7d3defe"
+      url "https://releases.antfly.io/antfly/v0.2.1/antfly_0.2.1_Linux_x86_64_gnu.tar.gz"
+      sha256 "2378190c86966626e5a6a101918f66f0f175c8f7482a85415fc446a2a09427d7"
     end
   end
 
@@ -28,6 +28,9 @@ class Antfly < Formula
     include.install Dir["include/*"] if Dir.exist?("include")
     lib.install Dir["lib/*"] if Dir.exist?("lib")
     (share/"antfly").install Dir["share/antfly/*"] if Dir.exist?("share/antfly")
+    bash_completion.install "completions/antfly.bash" => "antfly"
+    zsh_completion.install "completions/antfly.zsh" => "_antfly"
+    fish_completion.install "completions/antfly.fish"
   end
 
   service do
@@ -50,12 +53,8 @@ class Antfly < Formula
     <<~EOS
       antfly is now the native Zig runtime.
 
-      Existing data directories created by the Go/omni runtime are not opened
-      in place. Create a portable backup with the previous Go/omni runtime,
-      start the Zig runtime with a fresh data directory, then restore the backup.
-
-      The Go/omni runtime remains available as:
-        brew install antflydb/taps/antfly-go
+      Create and verify a portable backup before upgrading across storage-format
+      changes, and restore into a fresh data directory when rollback is needed.
 
       Start the local single-node service with:
         brew services start antflydb/taps/antfly
