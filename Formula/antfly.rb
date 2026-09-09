@@ -4,6 +4,9 @@
 class Antfly < Formula
   desc "Native Zig AntflyDB runtime"
   homepage "https://docs.antfly.io"
+  version "0.2.1"
+  # Recover from older formulae that inferred version 64 from arm64 archives.
+  version_scheme 1
   license "Elastic-2.0"
 
   if OS.mac?
