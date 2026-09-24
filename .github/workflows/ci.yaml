@@ -26,10 +26,36 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - name: Prepare Homebrew archive download marker
+        run: |
+          curlrc="$RUNNER_TEMP/antfly-homebrew-curlrc"
+          printf '%s\n' 'header = "X-Antfly-Audience: ci"' >"$curlrc"
+          chmod 600 "$curlrc"
+      - name: Validate Homebrew archive download marker
+        env:
+          HOMEBREW_CURLRC: ${{ runner.temp }}/antfly-homebrew-curlrc
+        run: |
+          case "$HOMEBREW_CURLRC" in
+            /*) ;;
+            *) echo "HOMEBREW_CURLRC must be absolute" >&2; exit 1 ;;
+          esac
+          test -f "$HOMEBREW_CURLRC"
+          if permissions="$(stat -f '%Lp' "$HOMEBREW_CURLRC" 2>/dev/null)"; then
+            :
+          else
+            permissions="$(stat -c '%a' "$HOMEBREW_CURLRC")"
+          fi
+          test "$permissions" = "600"
+          test "$(wc -l <"$HOMEBREW_CURLRC" | tr -d ' ')" = "1"
+          grep -Fqx 'header = "X-Antfly-Audience: ci"' "$HOMEBREW_CURLRC"
       - name: Tap antflydb/taps
         run: ${{ runner.os == 'Linux' && '/home/linuxbrew/.linuxbrew/bin/brew' || 'brew' }} tap antflydb/taps .
       - name: Trust antfly formula
         run: ${{ runner.os == 'Linux' && '/home/linuxbrew/.linuxbrew/bin/brew' || 'brew' }} trust --formula antflydb/taps/antfly
+      - name: Fetch antfly formula archive as CI
+        env:
+          HOMEBREW_CURLRC: ${{ runner.temp }}/antfly-homebrew-curlrc
+        run: ${{ runner.os == 'Linux' && '/home/linuxbrew/.linuxbrew/bin/brew' || 'brew' }} fetch --force --formula antflydb/taps/antfly
       - name: Install antfly formula
         run: ${{ runner.os == 'Linux' && '/home/linuxbrew/.linuxbrew/bin/brew' || 'brew' }} install --formula antflydb/taps/antfly
       - name: Test antfly formula
