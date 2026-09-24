@@ -59,4 +59,4 @@ jobs:
       - name: Install antfly formula
         run: ${{ runner.os == 'Linux' && '/home/linuxbrew/.linuxbrew/bin/brew' || 'brew' }} install --formula antflydb/taps/antfly
       - name: Test antfly formula
-        run: ${{ runner.os == 'Linux' && '/home/linuxbrew/.linuxbrew/bin/brew' || 'brew' }} test --formula antflydb/taps/antfly
+        run: ${{ runner.os == 'Linux' && '/home/linuxbrew/.linuxbrew/bin/brew' || 'brew' }} test antflydb/taps/antfly
