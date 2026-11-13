@@ -4,25 +4,25 @@
 class Antfly < Formula
   desc "Native Zig AntflyDB runtime"
   homepage "https://docs.antfly.io"
-  version "0.2.5"
+  version "0.3.0"
   # Recover from older formulae that inferred version 64 from arm64 archives.
   version_scheme 1
-  license "Elastic-2.0"
+  license "Apache-2.0"
 
   if OS.mac?
     if Hardware::CPU.arm?
-      url "https://releases.antfly.io/antfly/v0.2.5/antfly_0.2.5_Darwin_arm64.tar.gz"
-      sha256 "4fc5a948be9e14cefc8393de22ce1ea6e35b927aa79cc35b7d80bef55b712ac8"
+      url "https://releases.antfly.io/antfly/v0.3.0/antfly_0.3.0_Darwin_arm64.tar.gz"
+      sha256 "ae1cf137fae51ed79e6ebee5d4da4e22e48bce79f74e4a93cc9782a942b4b51b"
     else
       odie "antfly supports Apple Silicon macOS only"
     end
   elsif OS.linux?
     if Hardware::CPU.arm?
-      url "https://releases.antfly.io/antfly/v0.2.5/antfly_0.2.5_Linux_arm64_gnu.tar.gz"
-      sha256 "0c9c75d04a6e27a31fbbf5a0c036045b3e999f09c745fe8fe9ae0209a8cdad1e"
+      url "https://releases.antfly.io/antfly/v0.3.0/antfly_0.3.0_Linux_arm64_gnu.tar.gz"
+      sha256 "602c950c976453e53197ba427eae947bf5bcaaf5697a5fed8aa1b7fb99f4195e"
     else
-      url "https://releases.antfly.io/antfly/v0.2.5/antfly_0.2.5_Linux_x86_64_gnu.tar.gz"
-      sha256 "1e6f4d994290af92b7101f32a7131d51d50832f5500aa3d63bceda222dcc4f46"
+      url "https://releases.antfly.io/antfly/v0.3.0/antfly_0.3.0_Linux_x86_64_gnu.tar.gz"
+      sha256 "3ac909e8a4ba5dee9187a1a427e86d347eb9d18861e68ce3a611dffa03bfeedb"
     end
   end
 
@@ -50,13 +50,39 @@ class Antfly < Formula
 
   test do
     system "#{bin}/antfly", "--help"
-    (testpath/"smoke.c").write <<~C
+    (testpath/"smoke.c").write <<~'C'
       #include <antfly.h>
+      #include <stdio.h>
       int main(void) {
         uint32_t abi = antfly_abi_version();
-        if (abi != 1 && abi != 2) return 1;
-        void *db = NULL;
-        if (antfly_lite_create("smoke.aflite", (void *)&db) != ANTFLY_OK) return 2;
+        #ifdef ANTFLY_ABI_VERSION
+        if (abi != ANTFLY_ABI_VERSION) {
+          fprintf(stderr, "libantfly ABI %u differs from header ABI %u\n", abi, ANTFLY_ABI_VERSION);
+          return 1;
+        }
+        #else
+        /* Historical release headers predate the ABI declaration. */
+        if (abi != 1 && abi != 2 && abi != 3) {
+          fprintf(stderr, "unsupported legacy libantfly ABI %u\n", abi);
+          return 1;
+        }
+        #endif
+        #ifdef ANTFLY_ABI_VERSION
+        if (antfly_open_options_size() != sizeof(antfly_open_options)) {
+          fprintf(stderr, "libantfly open options size differs from header\n");
+          return 2;
+        }
+        #endif
+        antfly_db *db = NULL;
+        antfly_error_code code = antfly_lite_create("smoke.aflite", &db);
+        if (code != ANTFLY_OK) {
+          #ifdef ANTFLY_ABI_VERSION
+          fprintf(stderr, "antfly_lite_create: %s: %s\n", antfly_error_code_name(code), antfly_last_error_detail());
+          #else
+          fprintf(stderr, "antfly_lite_create failed with error %u\n", (unsigned)code);
+          #endif
+          return 3;
+        }
         antfly_db_close(db);
         return 0;
       }
