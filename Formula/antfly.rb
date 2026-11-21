@@ -4,25 +4,25 @@
 class Antfly < Formula
   desc "Native Zig AntflyDB runtime"
   homepage "https://docs.antfly.io"
-  version "0.3.1"
+  version "0.3.2"
   # Recover from older formulae that inferred version 64 from arm64 archives.
   version_scheme 1
   license "Apache-2.0"
 
   if OS.mac?
     if Hardware::CPU.arm?
-      url "https://releases.antfly.io/antfly/v0.3.1/antfly_0.3.1_Darwin_arm64.tar.gz"
-      sha256 "e5de808aff800022c1cd1c479fb032d81966d14bdbd339f15fda00e1091b3046"
+      url "https://releases.antfly.io/antfly/v0.3.2/antfly_0.3.2_Darwin_arm64.tar.gz"
+      sha256 "ba297a4fa0f70a307752221729c3550f4b5637de6b0d15068bd4883532dddd87"
     else
       odie "antfly supports Apple Silicon macOS only"
     end
   elsif OS.linux?
     if Hardware::CPU.arm?
-      url "https://releases.antfly.io/antfly/v0.3.1/antfly_0.3.1_Linux_arm64_gnu.tar.gz"
-      sha256 "e37e83225a42737120b0d1f7dac572890b9bf399436ba12eb48da0a2cc38e681"
+      url "https://releases.antfly.io/antfly/v0.3.2/antfly_0.3.2_Linux_arm64_gnu.tar.gz"
+      sha256 "224a75ee40e8926ae00d4115c62ab27b35bbfa7b637f3286d0388b87b9c4722b"
     else
-      url "https://releases.antfly.io/antfly/v0.3.1/antfly_0.3.1_Linux_x86_64_gnu.tar.gz"
-      sha256 "fb5ef02974ae66a3869597ae1593bb474021c543340f96eb52f466a9a166fc81"
+      url "https://releases.antfly.io/antfly/v0.3.2/antfly_0.3.2_Linux_x86_64_gnu.tar.gz"
+      sha256 "7a7b2f822dfd11aa787f2bba3311e15a0bdced878e79fe44b57030ca9a014970"
     end
   end
 
